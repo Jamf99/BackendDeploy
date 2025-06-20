@@ -1,26 +1,25 @@
-# Etapa 1: build
+# Usa .NET 8 SDK
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /app
 
-# Copiamos los archivos del proyecto
-COPY *.sln .
-COPY EvaluacionDesempenoSolution/EvaluacionDesempeno.*/*.csproj ./EvaluacionDesempenoSolution/EvaluacionDesempeno.*/
-COPY EvaluacionDesempenoSolution/EvaluacionDesempeno.*/ ./EvaluacionDesempenoSolution/EvaluacionDesempeno.*/
+# Copia archivos de solución y proyectos
+COPY EvaluacionDesempenoSolution.sln ./
+COPY EvaluacionDesempenoSolution/EvaluacionDesempeno.Application/EvaluacionDesempeno.Application.csproj EvaluacionDesempenoSolution/EvaluacionDesempeno.Application/
+COPY EvaluacionDesempenoSolution/EvaluacionDesempeno.Domain/EvaluacionDesempeno.Domain.csproj EvaluacionDesempenoSolution/EvaluacionDesempeno.Domain/
+COPY EvaluacionDesempenoSolution/EvaluacionDesempeno.Infrastructure/EvaluacionDesempeno.Infrastructure.csproj EvaluacionDesempenoSolution/EvaluacionDesempeno.Infrastructure/
+COPY EvaluacionDesempenoSolution/EvaluacionDesempeno.WebAPI/EvaluacionDesempeno.WebAPI.csproj EvaluacionDesempenoSolution/EvaluacionDesempeno.WebAPI/
 
-# Restauramos dependencias
+# Restaura
 RUN dotnet restore EvaluacionDesempenoSolution.sln
 
-# Copiamos el resto y compilamos
-COPY . .
+# Copia el resto del código
+COPY EvaluacionDesempenoSolution/. ./EvaluacionDesempenoSolution/
+
+# Build
 RUN dotnet publish EvaluacionDesempenoSolution/EvaluacionDesempeno.WebAPI/EvaluacionDesempeno.WebAPI.csproj -c Release -o /out
 
-# Etapa 2: runtime
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
+# Runtime
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
-COPY --from=build /out ./
-
-# Exponemos el puerto estándar
-EXPOSE 8080
-
-# Comando de arranque
+COPY --from=build /out .
 ENTRYPOINT ["dotnet", "EvaluacionDesempeno.WebAPI.dll"]
