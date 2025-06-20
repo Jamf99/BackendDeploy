@@ -1,26 +1,26 @@
-# Imagen base para build (usa .NET 8 SDK)
+# Etapa 1: build
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /app
 
-# Copiamos los archivos de la solución
-COPY . ./
+# Copiamos los archivos del proyecto
+COPY *.sln .
+COPY EvaluacionDesempenoSolution/EvaluacionDesempeno.*/*.csproj ./EvaluacionDesempenoSolution/EvaluacionDesempeno.*/
+COPY EvaluacionDesempenoSolution/EvaluacionDesempeno.*/ ./EvaluacionDesempenoSolution/EvaluacionDesempeno.*/
 
-# Restauramos paquetes
+# Restauramos dependencias
 RUN dotnet restore EvaluacionDesempenoSolution.sln
 
-# Build en modo release
-RUN dotnet build EvaluacionDesempenoSolution.sln -c Release --no-restore
+# Copiamos el resto y compilamos
+COPY . .
+RUN dotnet publish EvaluacionDesempenoSolution/EvaluacionDesempeno.WebAPI/EvaluacionDesempeno.WebAPI.csproj -c Release -o /out
 
-# Publicamos la app
-RUN dotnet publish EvaluacionDesempenoSolution.sln -c Release -o /app/publish --no-build
-
-# Imagen final, runtime (usa runtime ligero)
-FROM mcr.microsoft.com/dotnet/aspnet:8.0
+# Etapa 2: runtime
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
-COPY --from=build /app/publish .
+COPY --from=build /out ./
 
-# Puerto que expones (ajústalo según lo que use tu app)
+# Exponemos el puerto estándar
 EXPOSE 8080
 
-# Comando para correr la WebAPI
+# Comando de arranque
 ENTRYPOINT ["dotnet", "EvaluacionDesempeno.WebAPI.dll"]
