@@ -1,0 +1,41 @@
+# ===== BACKEND .NET =====
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+bin/
+obj/
+
+# Archivos de logs
+*.log
+
+# Archivos de bloqueo de migración de EF Core
+**/Migrations/*
+!**/Migrations/*.cs
+!**/Migrations/*.Designer.cs
+
+# sql lite
+*.db-shm
+*.db-wal
+
+# ===== FRONTEND =====
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# Archivos de lock (opcional ignorar, aunque suelen incluirse para control de versiones)
+# package-lock.json
+# yarn.lock
+
+# ===== Config / IDE =====
+.vscode/
+*.env
+*.env.local
+*.env.development.local
+*.env.test.local
+*.env.production.local
+
+
+
